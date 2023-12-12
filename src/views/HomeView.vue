@@ -3,11 +3,15 @@
     <div class="container">
     <button v-if = "authResult" @click="Logout" class="center">Logout</button>
     </div>
-    <div class="post-list" v-for="post in posts"   :key="post.index">  
+    <div class="post-list" v-for="post in posts" :key="post.index" @click="goToPost(post.id)">  
       <div class="post">
-          <h3>  Title:  {{post.title}} </h3>
-          <p>  <b> Body: </b> {{post.body}} </p>
+        <p class="date">{{ formatDate(post.date)}}</p>
+        <p> <b> {{post.body}}</b> </p>
       </div>
+    </div>
+    <div class="container">
+    <button v-if = "authResult" @click="AddPost" class="center">Add Post</button>
+    <button v-if = "authResult" @click="DeleteAll" class="center">Delete All</button>
     </div>
   </div>
 </template>
@@ -44,9 +48,43 @@ export default {
         console.log("error logout");
       });
     },
+    AddPost() {
+      this.$router.push("/addpost");
+    },
+    DeleteAll() {
+      fetch("http://localhost:3000/posts/deleteall", {
+          method: 'DELETE',
+          credentials: 'include', //  Don't forget to specify this if you need cookies
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        console.log('All posts deleted');
+        this.posts = [];
+      })
+      .catch((e) => {
+        console.log(e);
+        console.log("error deleting all posts");
+      });
+    },
+    goToPost(postId) {
+      this.$router.push(`/post/${postId}`);
+    },
+
+    formatDate(dateString) {
+  const date = new Date(dateString);
+  return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+},
   }, 
   mounted() {
-        fetch('https://jsonplaceholder.typicode.com/posts')
+    fetch('http://localhost:3000/posts', {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      'Authorization': 'Bearer ' + document.cookie.split('=')[1]  // Add this line
+    },
+    credentials: 'include',
+  })
         .then((response) => response.json())
         .then(data => this.posts = data)
         .catch(err => console.log(err.message))
@@ -63,21 +101,17 @@ body{
   position: relative;
 }
 .post-list{
-  background: rgb(189, 212, 199);
   margin-bottom: 5px;
   padding: 3px 5px;
-  border-radius: 10px;
 }
-h3{
+.date{
     margin: 0;
   padding: 0;
   font-family: 'Quicksand', sans-serif;
   color: #444;
-  background: #7e9756;
+  text-align: right;
 }
-p{
-  background: #796dbd;
-}
+
 h1, h2, h3, h4, ul, li, a, input, label, button, div, footer{
   margin: 0;
   padding: 0;
@@ -117,11 +151,12 @@ nav{
   align-items: center;
 }
 .post {
+  background: rgb(189, 212, 199);
+  border-radius: 10px;
     width: 80%;
     position: relative;
-    padding: 10px;
-    margin: 10px auto;
-    border: 1px solid gray;
+    padding: 20px;
+    margin: 5px auto;
     text-align: left;
 }
 .center {
