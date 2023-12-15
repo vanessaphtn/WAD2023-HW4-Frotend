@@ -52,11 +52,14 @@ export default {
       this.$router.push("/addpost");
     },
     DeleteAll() {
-      fetch("http://localhost:3000/posts/deleteall", {
+      fetch("http://localhost:3000/posts", {
           method: 'DELETE',
           credentials: 'include', //  Don't forget to specify this if you need cookies
       })
-      .then((response) => response.json())
+      .then((response) => {
+        response.json()
+        console.log(response)
+      })
       .then((data) => {
         console.log(data);
         console.log('All posts deleted');

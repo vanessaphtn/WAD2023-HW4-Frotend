@@ -4,6 +4,7 @@ import SignUp from "../views/SignUp.vue";
 import LogIn from "../views/LogIn.vue";
 import AddPost from "../views/AddPost.vue";
 import auth from "../auth";
+import Post from "../views/Post.vue";
 
 
 
@@ -53,6 +54,20 @@ const routes = [{
           }
         }
       },
+    {
+        path: "/posts/:postId",
+        name: "Post",
+        component: Post,
+        beforeEnter: async(to, from, next) => {
+
+            let authResult = await auth.authenticated();
+            if (!authResult) {
+                next('/login')
+            } else {
+                next();
+            }
+        }
+    }
 ];
 
 const router = createRouter({
