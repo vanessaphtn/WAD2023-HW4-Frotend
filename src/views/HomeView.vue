@@ -1,33 +1,34 @@
 <template>
   <div class="header">
     <div class="container">
-    <button v-if = "authResult" @click="Logout" class="center">Logout</button>
+      <button v-if="authResult" @click="Logout" class="center">Logout</button>
     </div>
-    <div class="post-list" v-for="post in posts" :key="post.index" @click="goToPost(post.id)">  
+    <router-link v-for="post in posts" :key="post.id" :to="{ name: 'Post', params: { postId: post.id } }">
       <div class="post">
-        <p class="date">{{ formatDate(post.date)}}</p>
-        <p> <b> {{post.body}}</b> </p>
+        <p class="date">{{ formatDate(post.date) }}</p>
+        <p><b>{{ post.body }}</b></p>
       </div>
-    </div>
+    </router-link>
     <div class="container">
-    <button v-if = "authResult" @click="AddPost" class="center">Add Post</button>
-    <button v-if = "authResult" @click="DeleteAll" class="center">Delete All</button>
+      <button v-if="authResult" @click="AddPost" class="center">Add Post</button>
+      <button v-if="authResult" @click="DeleteAll" class="center">Delete All</button>
     </div>
   </div>
 </template>
+
 
 <script>
 // @ is an alias to /src
 import auth from "../auth";
 
 export default {
-  name: "HomeView",
+  name: "HomeView", 
   components: {
   },
    data: function() {
     return {
     posts:[ ],
-    authResult: auth.authenticated()
+    authResult: auth.authenticated(),
     }
   },
   methods: {
@@ -70,11 +71,8 @@ export default {
         console.log("error deleting all posts");
       });
     },
-    goToPost(postId) {
-      this.$router.push(`/post/${postId}`);
-    },
-
-    formatDate(dateString) {
+    
+  formatDate(dateString) {
   const date = new Date(dateString);
   return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
 },
